@@ -1,0 +1,15 @@
+
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+*.test
+
+
+.idea/
+.vscode/
+
+
+vendor/
