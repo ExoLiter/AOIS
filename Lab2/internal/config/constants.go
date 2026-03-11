@@ -1,0 +1,22 @@
+package config
+
+const (
+	OpAnd = "&"
+	OpOr  = "|"
+	OpNot = "!"
+	OpImp = ">" // Заменяем -> на одиночный символ для удобства парсинга
+	OpEq  = "=" // Заменяем ~ на одиночный символ
+	OpLPr = "("
+	OpRPr = ")"
+
+	MaxVariablesCount = 5
+	BinaryBase        = 2
+
+	// Приоритеты операций
+	PriorityNot = 5
+	PriorityAnd = 4
+	PriorityOr  = 3
+	PriorityImp = 2
+	PriorityEq  = 1
+	PriorityDef = 0
+)
