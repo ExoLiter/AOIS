@@ -1,0 +1,120 @@
+//line D:\AOIS\Lab2\internal\minimization\term.go:1:1
+package minimization
+
+import (
+	"fmt"
+	"logical_calculator/internal/models"
+	"sort"
+	"strings"
+)
+
+func BuildMinterms(table []models.Row, vars []string) []models.Term {goCover_826678015c99__22[0] = 4 ; goCover_826678015c99__22[1] = goCover_826678015c99_P ; goCover_826678015c99__22[2] = 22 ; goCover_826678015c99__22[3] = 1;
+	var terms []models.Term
+	for _, row := range table {goCover_826678015c99__22[5] = 1;
+		if row.Result {goCover_826678015c99__22[6] = 1;
+			terms = append(terms, createBaseTerm(row.Index, vars))
+		}
+	}
+	goCover_826678015c99__22[4] = 1;return terms
+}
+
+func BuildMaxterms(table []models.Row, vars []string) []models.Term {goCover_826678015c99__23[0] = 4 ; goCover_826678015c99__23[1] = goCover_826678015c99_P ; goCover_826678015c99__23[2] = 23 ; goCover_826678015c99__23[3] = 1;
+	var terms []models.Term
+	for _, row := range table {goCover_826678015c99__23[5] = 1;
+		if !row.Result {goCover_826678015c99__23[6] = 1;
+			terms = append(terms, createBaseTerm(row.Index, vars))
+		}
+	}
+	goCover_826678015c99__23[4] = 1;return terms
+}
+
+func createBaseTerm(index int, vars []string) models.Term {goCover_826678015c99__24[0] = 1 ; goCover_826678015c99__24[1] = goCover_826678015c99_P ; goCover_826678015c99__24[2] = 24 ; goCover_826678015c99__24[3] = 1;
+	return models.Term{
+		Mask:    (1 << len(vars)) - 1,
+		Value:   index,
+		Indices: []int{index},
+	}
+}
+
+func TryMerge(t1, t2 models.Term) (models.Term, bool) {goCover_826678015c99__25[0] = 5 ; goCover_826678015c99__25[1] = goCover_826678015c99_P ; goCover_826678015c99__25[2] = 25 ; goCover_826678015c99__25[3] = 1;
+	if t1.Mask != t2.Mask {goCover_826678015c99__25[6] = 1;
+		return models.Term{}, false
+	}
+	goCover_826678015c99__25[4] = 1;diff := t1.Value ^ t2.Value
+	if diff != 0 && (diff&(diff-1)) == 0 {goCover_826678015c99__25[7] = 1;
+		newMask := t1.Mask &^ diff
+		newValue := t1.Value &^ diff
+		newIndices := append(append([]int{}, t1.Indices...), t2.Indices...)
+		sort.Ints(newIndices)
+		return models.Term{Mask: newMask, Value: newValue, Indices: newIndices}, true
+	}
+	goCover_826678015c99__25[5] = 1;return models.Term{}, false
+}
+
+// FormatTermSDNF Форматирует для СДНФ (a & !b)
+func FormatTermSDNF(t models.Term, vars []string) string {goCover_826678015c99__26[0] = 8 ; goCover_826678015c99__26[1] = goCover_826678015c99_P ; goCover_826678015c99__26[2] = 26 ; goCover_826678015c99__26[3] = 1;
+	var parts []string
+	for i, v := range vars {goCover_826678015c99__26[6] = 1;
+		shift := len(vars) - 1 - i
+		if (t.Mask>>shift)&1 == 1 {goCover_826678015c99__26[7] = 1;
+			if (t.Value>>shift)&1 == 1 {goCover_826678015c99__26[8] = 1;
+				parts = append(parts, v)
+			} else{ goCover_826678015c99__26[9] = 1;{
+				parts = append(parts, "!"+v)
+			}}
+		}
+	}
+	goCover_826678015c99__26[4] = 1;if len(parts) == 0 {goCover_826678015c99__26[10] = 1;
+		return "1"
+	}
+	goCover_826678015c99__26[5] = 1;return formatWithIndices(strings.Join(parts, ""), t.Indices)
+}
+
+// FormatTermSKNF Форматирует для СКНФ (!a v b)
+func FormatTermSKNF(t models.Term, vars []string) string {goCover_826678015c99__27[0] = 8 ; goCover_826678015c99__27[1] = goCover_826678015c99_P ; goCover_826678015c99__27[2] = 27 ; goCover_826678015c99__27[3] = 1;
+	var parts []string
+	for i, v := range vars {goCover_826678015c99__27[6] = 1;
+		shift := len(vars) - 1 - i
+		if (t.Mask>>shift)&1 == 1 {goCover_826678015c99__27[7] = 1;
+			if (t.Value>>shift)&1 == 1 {goCover_826678015c99__27[8] = 1;
+				parts = append(parts, "!"+v) // В СКНФ 1 - это отрицание
+			} else{ goCover_826678015c99__27[9] = 1;{
+				parts = append(parts, v)
+			}}
+		}
+	}
+	goCover_826678015c99__27[4] = 1;if len(parts) == 0 {goCover_826678015c99__27[10] = 1;
+		return "0"
+	}
+	goCover_826678015c99__27[5] = 1;return formatWithIndices(strings.Join(parts, " v "), t.Indices)
+}
+
+func formatWithIndices(expr string, indices []int) string {goCover_826678015c99__28[0] = 3 ; goCover_826678015c99__28[1] = goCover_826678015c99_P ; goCover_826678015c99__28[2] = 28 ; goCover_826678015c99__28[3] = 1;
+	idxStrs := make([]string, len(indices))
+	for i, idx := range indices {goCover_826678015c99__28[5] = 1;
+		idxStrs[i] = fmt.Sprint(idx)
+	}
+	goCover_826678015c99__28[4] = 1;return fmt.Sprintf("(%s)%s", expr, strings.Join(idxStrs, ","))
+}
+
+func FormatTermsSum(terms []models.Term, vars []string) string {goCover_826678015c99__29[0] = 5 ; goCover_826678015c99__29[1] = goCover_826678015c99_P ; goCover_826678015c99__29[2] = 29 ; goCover_826678015c99__29[3] = 1;
+	if len(terms) == 0 {goCover_826678015c99__29[6] = 1;
+		return "0"
+	}
+	goCover_826678015c99__29[4] = 1;var parts []string
+	for _, t := range terms {goCover_826678015c99__29[7] = 1;
+		parts = append(parts, FormatTermSDNF(t, vars))
+	}
+	goCover_826678015c99__29[5] = 1;return strings.Join(parts, " v ")
+}
+
+func FormatTermsProd(terms []models.Term, vars []string) string {goCover_826678015c99__30[0] = 5 ; goCover_826678015c99__30[1] = goCover_826678015c99_P ; goCover_826678015c99__30[2] = 30 ; goCover_826678015c99__30[3] = 1;
+	if len(terms) == 0 {goCover_826678015c99__30[6] = 1;
+		return "1"
+	}
+	goCover_826678015c99__30[4] = 1;var parts []string
+	for _, t := range terms {goCover_826678015c99__30[7] = 1;
+		parts = append(parts, FormatTermSKNF(t, vars))
+	}
+	goCover_826678015c99__30[5] = 1;return strings.Join(parts, " & ")
+}

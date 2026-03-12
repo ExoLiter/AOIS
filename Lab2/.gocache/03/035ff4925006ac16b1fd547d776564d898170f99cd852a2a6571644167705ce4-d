@@ -1,0 +1,69 @@
+//line D:\AOIS\Lab2\internal\forms\forms.go:1:1
+package forms
+
+import (
+	"logical_calculator/internal/models"
+	"strings"
+)
+
+func BuildSDNF(table []models.Row, vars []string) string {goCover_ad6ed9bd0c8a__0[0] = 4 ; goCover_ad6ed9bd0c8a__0[1] = goCover_ad6ed9bd0c8a_P ; goCover_ad6ed9bd0c8a__0[2] = 0 ; goCover_ad6ed9bd0c8a__0[3] = 1;
+	var terms []string
+	for _, row := range table {goCover_ad6ed9bd0c8a__0[5] = 1;
+		if row.Result {goCover_ad6ed9bd0c8a__0[6] = 1;
+			terms = append(terms, buildTerm(row, vars, true))
+		}
+	}
+	goCover_ad6ed9bd0c8a__0[4] = 1;return strings.Join(terms, " v ")
+}
+
+func BuildSKNF(table []models.Row, vars []string) string {goCover_ad6ed9bd0c8a__1[0] = 4 ; goCover_ad6ed9bd0c8a__1[1] = goCover_ad6ed9bd0c8a_P ; goCover_ad6ed9bd0c8a__1[2] = 1 ; goCover_ad6ed9bd0c8a__1[3] = 1;
+	var terms []string
+	for _, row := range table {goCover_ad6ed9bd0c8a__1[5] = 1;
+		if !row.Result {goCover_ad6ed9bd0c8a__1[6] = 1;
+			terms = append(terms, buildTerm(row, vars, false))
+		}
+	}
+	goCover_ad6ed9bd0c8a__1[4] = 1;return strings.Join(terms, " & ")
+}
+
+func buildTerm(row models.Row, vars []string, isSdnf bool) string {goCover_ad6ed9bd0c8a__2[0] = 5 ; goCover_ad6ed9bd0c8a__2[1] = goCover_ad6ed9bd0c8a_P ; goCover_ad6ed9bd0c8a__2[2] = 2 ; goCover_ad6ed9bd0c8a__2[3] = 1;
+	var parts []string
+	for _, v := range vars {goCover_ad6ed9bd0c8a__2[6] = 1;
+		parts = append(parts, formatVar(v, row.Values[v], isSdnf))
+	}
+	goCover_ad6ed9bd0c8a__2[4] = 1;separator := " & "
+	if !isSdnf {goCover_ad6ed9bd0c8a__2[7] = 1;
+		separator = " v "
+	}
+	goCover_ad6ed9bd0c8a__2[5] = 1;return "(" + strings.Join(parts, separator) + ")"
+}
+
+func formatVar(v string, val bool, isSdnf bool) string {goCover_ad6ed9bd0c8a__3[0] = 3 ; goCover_ad6ed9bd0c8a__3[1] = goCover_ad6ed9bd0c8a_P ; goCover_ad6ed9bd0c8a__3[2] = 3 ; goCover_ad6ed9bd0c8a__3[3] = 1;
+	needsNot := (!val && isSdnf) || (val && !isSdnf)
+	if needsNot {goCover_ad6ed9bd0c8a__3[5] = 1;
+		return "!" + v
+	}
+	goCover_ad6ed9bd0c8a__3[4] = 1;return v
+}
+
+func NumericForms(table []models.Row) (sdnfNums, sknfNums []int) {goCover_ad6ed9bd0c8a__4[0] = 5 ; goCover_ad6ed9bd0c8a__4[1] = goCover_ad6ed9bd0c8a_P ; goCover_ad6ed9bd0c8a__4[2] = 4 ; goCover_ad6ed9bd0c8a__4[3] = 1;
+	for _, row := range table {goCover_ad6ed9bd0c8a__4[5] = 1;
+		if row.Result {goCover_ad6ed9bd0c8a__4[6] = 1;
+			sdnfNums = append(sdnfNums, row.Index)
+		} else{ goCover_ad6ed9bd0c8a__4[7] = 1;{
+			sknfNums = append(sknfNums, row.Index)
+		}}
+	}
+	goCover_ad6ed9bd0c8a__4[4] = 1;return sdnfNums, sknfNums
+}
+
+func IndexForm(table []models.Row) int {goCover_ad6ed9bd0c8a__5[0] = 4 ; goCover_ad6ed9bd0c8a__5[1] = goCover_ad6ed9bd0c8a_P ; goCover_ad6ed9bd0c8a__5[2] = 5 ; goCover_ad6ed9bd0c8a__5[3] = 1;
+	index := 0
+	for i, row := range table {goCover_ad6ed9bd0c8a__5[5] = 1;
+		if row.Result {goCover_ad6ed9bd0c8a__5[6] = 1;
+			shift := len(table) - 1 - i
+			index |= (1 << shift)
+		}
+	}
+	goCover_ad6ed9bd0c8a__5[4] = 1;return index
+}

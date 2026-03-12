@@ -1,0 +1,112 @@
+//line D:\AOIS\Lab2\cmd\main.go:1:1
+package main; import _ "runtime/coverage"
+
+import (
+	"bufio"
+	"fmt"
+	"logical_calculator/internal/derivatives"
+	"logical_calculator/internal/forms"
+	"logical_calculator/internal/minimization"
+	"logical_calculator/internal/parser"
+	"logical_calculator/internal/postclass"
+	"logical_calculator/internal/truthtable"
+	"logical_calculator/internal/zhegalkin"
+	"os"
+)
+
+func main() {goCover_f55bf149d541__0[0] = 18 ; goCover_f55bf149d541__0[1] = goCover_f55bf149d541_P ; goCover_f55bf149d541__0[2] = 0 ; goCover_f55bf149d541__0[3] = 1;
+	fmt.Println("Введите логическую функцию (например: !(!a->!b)v c):")
+	scanner := bufio.NewScanner(os.Stdin)
+	if !scanner.Scan() {goCover_f55bf149d541__0[9] = 1;
+		return
+	}
+	goCover_f55bf149d541__0[4] = 1;input := scanner.Text()
+
+	// 1. Форматирование, токенизация и валидация
+	formatted := parser.FormatInput(input)
+	tokens := parser.Tokenize(formatted)
+
+	if err := parser.ValidateExpression(tokens); err != nil {goCover_f55bf149d541__0[10] = 1;
+		fmt.Printf("Ошибка во введенной формуле: %v\n", err)
+		return
+	}
+
+	goCover_f55bf149d541__0[5] = 1;rpn := parser.InfixToRPN(tokens)
+
+	// 2. Таблица истинности
+	vars := truthtable.ExtractVariables(rpn)
+	table := truthtable.GenerateTable(rpn, vars)
+
+	fmt.Println("\n--- Таблица истинности ---")
+	for _, v := range vars {goCover_f55bf149d541__0[11] = 1;
+		fmt.Printf("%s\t", v)
+	}
+	goCover_f55bf149d541__0[6] = 1;fmt.Println("F")
+	for _, row := range table {goCover_f55bf149d541__0[12] = 1;
+		for _, v := range vars {goCover_f55bf149d541__0[14] = 1;
+			if row.Values[v] {goCover_f55bf149d541__0[15] = 1;
+				fmt.Print("1\t")
+			} else{ goCover_f55bf149d541__0[16] = 1;{
+				fmt.Print("0\t")
+			}}
+		}
+		goCover_f55bf149d541__0[13] = 1;if row.Result {goCover_f55bf149d541__0[17] = 1;
+			fmt.Println("1")
+		} else{ goCover_f55bf149d541__0[18] = 1;{
+			fmt.Println("0")
+		}}
+	}
+
+	// 3, 4, 5. Формы
+	goCover_f55bf149d541__0[7] = 1;sdnfNums, sknfNums := forms.NumericForms(table)
+	fmt.Printf("\nСДНФ: %s\nЧисловая СДНФ: %v\n", forms.BuildSDNF(table, vars), sdnfNums)
+	fmt.Printf("СКНФ: %s\nЧисловая СКНФ: %v\n", forms.BuildSKNF(table, vars), sknfNums)
+	fmt.Printf("Индексная форма: %d\n", forms.IndexForm(table))
+
+	// 6. Классы Поста
+	fmt.Println("\n--- Классы Поста ---")
+	fmt.Printf("T0: %v, T1: %v, S: %v, M: %v, L: %v\n",
+		postclass.IsT0(table), postclass.IsT1(table),
+		postclass.IsSelfDual(table), postclass.IsMonotonic(table), postclass.IsLinear(table))
+
+	if postclass.IsFunctionallyComplete(table) {goCover_f55bf149d541__0[19] = 1;
+		fmt.Println("Данная логическая функция является функционально полной")
+	} else{ goCover_f55bf149d541__0[20] = 1;{
+		fmt.Println("Данная логическая функция не является функционально полной")
+	}}
+
+	// 7. Полином Жегалкина
+	goCover_f55bf149d541__0[8] = 1;fmt.Printf("\nПолином Жегалкина: %s\n", zhegalkin.BuildPolynomial(table, vars))
+
+	// 8. Фиктивные переменные
+	dummies := derivatives.FindDummyVariables(table, vars)
+	fmt.Printf("\nФиктивные переменные: %v\n", dummies)
+
+	// 9. Булева дифференциация (Все частные и смешанные до 4 порядка)
+	fmt.Println("\n--- Булева дифференциация ---")
+	fmt.Println(derivatives.GenerateAllDerivatives(table, vars))
+
+	// 10, 11, 12. МИНИМИЗАЦИЯ СДНФ
+	fmt.Println("\n============= МИНИМИЗАЦИЯ СДНФ =============")
+
+	fmt.Println("\n--- Расчетный метод (СДНФ) ---")
+	fmt.Println(minimization.MinimizeCalculationSDNF(table, vars))
+
+	fmt.Println("\n--- Расчетно-табличный метод (СДНФ) ---")
+	fmt.Println(minimization.MinimizeTabularCalcSDNF(table, vars))
+
+	fmt.Println("\n--- Табличный метод / Карта Карно (СДНФ) ---")
+	fmt.Println(minimization.MinimizeKarnaughSDNF(table, vars))
+
+	// 10, 11, 12. МИНИМИЗАЦИЯ СКНФ
+	fmt.Println("\n============= МИНИМИЗАЦИЯ СКНФ =============")
+
+	fmt.Println("\n--- Расчетный метод (СКНФ) ---")
+	fmt.Println(minimization.MinimizeCalculationSKNF(table, vars))
+
+	fmt.Println("\n--- Расчетно-табличный метод (СКНФ) ---")
+	fmt.Println(minimization.MinimizeTabularCalcSKNF(table, vars))
+
+	fmt.Println("\n--- Табличный метод / Карта Карно (СКНФ) ---")
+	fmt.Println(minimization.MinimizeKarnaughSKNF(table, vars))
+}

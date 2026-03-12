@@ -1,0 +1,5 @@
+./calculation.go
+./karnaugh.go
+./tabular_calc.go
+./term.go
+./minimization_test.go

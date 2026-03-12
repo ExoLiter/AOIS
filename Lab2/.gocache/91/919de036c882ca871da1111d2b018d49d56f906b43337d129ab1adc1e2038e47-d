@@ -1,0 +1,138 @@
+//line D:\AOIS\Lab2\internal\minimization\calculation.go:1:1
+package minimization
+
+import (
+	"fmt"
+	"logical_calculator/internal/models"
+	"strings"
+)
+
+func MinimizeCalculationSDNF(table []models.Row, vars []string) string {goCover_826678015c99__0[0] = 1 ; goCover_826678015c99__0[1] = goCover_826678015c99_P ; goCover_826678015c99__0[2] = 0 ; goCover_826678015c99__0[3] = 1;
+	minterms := BuildMinterms(table, vars)
+	return runCalculationMethod(minterms, vars, FormatTermSDNF, FormatTermsSum, "v")
+}
+
+func MinimizeCalculationSKNF(table []models.Row, vars []string) string {goCover_826678015c99__1[0] = 1 ; goCover_826678015c99__1[1] = goCover_826678015c99_P ; goCover_826678015c99__1[2] = 1 ; goCover_826678015c99__1[3] = 1;
+	maxterms := BuildMaxterms(table, vars)
+	return runCalculationMethod(maxterms, vars, FormatTermSKNF, FormatTermsProd, "&")
+}
+
+// Внутренняя универсальная функция для СДНФ и СКНФ
+func runCalculationMethod(terms []models.Term, vars []string,
+	formatTerm func(models.Term, []string) string,
+	formatFinal func([]models.Term, []string) string, op string) string {goCover_826678015c99__2[0] = 3 ; goCover_826678015c99__2[1] = goCover_826678015c99_P ; goCover_826678015c99__2[2] = 2 ; goCover_826678015c99__2[3] = 1;
+
+	if len(terms) == 0 {goCover_826678015c99__2[5] = 1;
+		return "Нет импликант для склеивания."
+	}
+
+	goCover_826678015c99__2[4] = 1;var sb strings.Builder
+	sb.WriteString("Этап склеивания:\n")
+
+	primeImplicants := PerformGluingSteps(&sb, terms, vars, formatTerm, op)
+
+	sb.WriteString("Результат:\n" + formatFinal(primeImplicants, vars) + "\n\n")
+	sb.WriteString("Проверка на лишние импликанты:\n")
+
+	finalImplicants := RemoveRedundantCalc(&sb, primeImplicants, terms, vars, formatTerm)
+	sb.WriteString("\nИтоговый результат:\n" + formatFinal(finalImplicants, vars) + "\n")
+
+	return sb.String()
+}
+
+func PerformGluingSteps(sb *strings.Builder, current []models.Term, vars []string,
+	formatTerm func(models.Term, []string) string, op string) []models.Term {goCover_826678015c99__3[0] = 7 ; goCover_826678015c99__3[1] = goCover_826678015c99_P ; goCover_826678015c99__3[2] = 3 ; goCover_826678015c99__3[3] = 1;
+	var primes []models.Term
+	for {goCover_826678015c99__3[5] = 1;
+		next, used, mergedStr := glueRound(current, vars, formatTerm, op)
+		if mergedStr != "" && sb != nil {goCover_826678015c99__3[8] = 1;
+			sb.WriteString(mergedStr)
+		}
+		goCover_826678015c99__3[6] = 1;primes = extractUnused(current, used, primes)
+		if len(next) == 0 {goCover_826678015c99__3[9] = 1;
+			break
+		}
+		goCover_826678015c99__3[7] = 1;current = next
+	}
+	goCover_826678015c99__3[4] = 1;return removeDuplicates(primes)
+}
+
+func glueRound(current []models.Term, vars []string, formatTerm func(models.Term, []string) string, op string) ([]models.Term, map[int]bool, string) {goCover_826678015c99__4[0] = 5 ; goCover_826678015c99__4[1] = goCover_826678015c99_P ; goCover_826678015c99__4[2] = 4 ; goCover_826678015c99__4[3] = 1;
+	var next []models.Term
+	used := make(map[int]bool)
+	var sb strings.Builder
+
+	for i := 0; i < len(current); i++ {goCover_826678015c99__4[5] = 1;
+		for j := i + 1; j < len(current); j++ {goCover_826678015c99__4[6] = 1;
+			merged, ok := TryMerge(current[i], current[j])
+			if ok {goCover_826678015c99__4[7] = 1;
+				used[i], used[j] = true, true
+				next = append(next, merged)
+				sb.WriteString(fmt.Sprintf("%s %s %s => %s\n",
+					formatTerm(current[i], vars), op, formatTerm(current[j], vars), formatTerm(merged, vars)))
+			}
+		}
+	}
+	goCover_826678015c99__4[4] = 1;return next, used, sb.String()
+}
+
+func extractUnused(current []models.Term, used map[int]bool, primes []models.Term) []models.Term {goCover_826678015c99__5[0] = 4 ; goCover_826678015c99__5[1] = goCover_826678015c99_P ; goCover_826678015c99__5[2] = 5 ; goCover_826678015c99__5[3] = 1;
+	for i, t := range current {goCover_826678015c99__5[5] = 1;
+		if !used[i] {goCover_826678015c99__5[6] = 1;
+			primes = append(primes, t)
+		}
+	}
+	goCover_826678015c99__5[4] = 1;return primes
+}
+
+func removeDuplicates(terms []models.Term) []models.Term {goCover_826678015c99__6[0] = 4 ; goCover_826678015c99__6[1] = goCover_826678015c99_P ; goCover_826678015c99__6[2] = 6 ; goCover_826678015c99__6[3] = 1;
+	seen := make(map[int]bool)
+	var res []models.Term
+	for _, t := range terms {goCover_826678015c99__6[5] = 1;
+		hash := (t.Mask << 16) | t.Value
+		if !seen[hash] {goCover_826678015c99__6[6] = 1;
+			seen[hash] = true
+			res = append(res, t)
+		}
+	}
+	goCover_826678015c99__6[4] = 1;return res
+}
+
+func RemoveRedundantCalc(sb *strings.Builder, primes []models.Term, baseTerms []models.Term, vars []string, formatTerm func(models.Term, []string) string) []models.Term {goCover_826678015c99__7[0] = 7 ; goCover_826678015c99__7[1] = goCover_826678015c99_P ; goCover_826678015c99__7[2] = 7 ; goCover_826678015c99__7[3] = 1;
+	var final []models.Term
+	for i, candidate := range primes {goCover_826678015c99__7[5] = 1;
+		if isEssential(candidate, primes, baseTerms, i) {goCover_826678015c99__7[6] = 1;
+			final = append(final, candidate)
+			if sb != nil {goCover_826678015c99__7[7] = 1;
+				sb.WriteString(fmt.Sprintf("%s - эта импликанта не лишняя\n", formatTerm(candidate, vars)))
+			}
+		} else{ goCover_826678015c99__7[8] = 1;{
+			if sb != nil {goCover_826678015c99__7[9] = 1;
+				sb.WriteString(fmt.Sprintf("%s - эта импликанта лишняя\n", formatTerm(candidate, vars)))
+			}
+		}}
+	}
+	goCover_826678015c99__7[4] = 1;return final
+}
+
+func isEssential(target models.Term, all []models.Term, baseTerms []models.Term, skipIdx int) bool {goCover_826678015c99__8[0] = 8 ; goCover_826678015c99__8[1] = goCover_826678015c99_P ; goCover_826678015c99__8[2] = 8 ; goCover_826678015c99__8[3] = 1;
+	for _, m := range baseTerms {goCover_826678015c99__8[5] = 1;
+		if covers(target, m) {goCover_826678015c99__8[6] = 1;
+			coveredByOthers := false
+			for j, other := range all {goCover_826678015c99__8[8] = 1;
+				if j != skipIdx && covers(other, m) {goCover_826678015c99__8[9] = 1;
+					coveredByOthers = true
+					break
+				}
+			}
+			goCover_826678015c99__8[7] = 1;if !coveredByOthers {goCover_826678015c99__8[10] = 1;
+				return true
+			}
+		}
+	}
+	goCover_826678015c99__8[4] = 1;return false
+}
+
+func covers(implicant, minterm models.Term) bool {goCover_826678015c99__9[0] = 1 ; goCover_826678015c99__9[1] = goCover_826678015c99_P ; goCover_826678015c99__9[2] = 9 ; goCover_826678015c99__9[3] = 1;
+	return (minterm.Value & implicant.Mask) == implicant.Value
+}

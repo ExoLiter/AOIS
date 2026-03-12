@@ -1,0 +1,3 @@
+covervars.go
+truthtable.cover.go
+./truthtable_test.go

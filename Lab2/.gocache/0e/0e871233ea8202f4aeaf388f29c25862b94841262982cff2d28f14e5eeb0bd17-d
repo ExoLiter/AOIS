@@ -1,0 +1,6 @@
+covervars.go
+calculation.cover.go
+karnaugh.cover.go
+tabular_calc.cover.go
+term.cover.go
+./minimization_test.go

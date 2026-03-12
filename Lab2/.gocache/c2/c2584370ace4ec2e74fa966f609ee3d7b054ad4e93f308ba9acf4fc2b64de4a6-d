@@ -1,0 +1,95 @@
+//line D:\AOIS\Lab2\internal\minimization\karnaugh.go:1:1
+package minimization
+
+import (
+	"fmt"
+	"logical_calculator/internal/models"
+	"strings"
+)
+
+func MinimizeKarnaughSDNF(table []models.Row, vars []string) string {goCover_826678015c99__10[0] = 1 ; goCover_826678015c99__10[1] = goCover_826678015c99_P ; goCover_826678015c99__10[2] = 10 ; goCover_826678015c99__10[3] = 1;
+	minterms := BuildMinterms(table, vars)
+	finalFunc := getSilentMinimized(minterms, vars, FormatTermSDNF)
+	// Убрали передачу параметра isSdnf
+	return buildKarnaughMap(table, vars, FormatTermsSum(finalFunc, vars))
+}
+
+func MinimizeKarnaughSKNF(table []models.Row, vars []string) string {goCover_826678015c99__11[0] = 1 ; goCover_826678015c99__11[1] = goCover_826678015c99_P ; goCover_826678015c99__11[2] = 11 ; goCover_826678015c99__11[3] = 1;
+	maxterms := BuildMaxterms(table, vars)
+	finalFunc := getSilentMinimized(maxterms, vars, FormatTermSKNF)
+	// Убрали передачу параметра isSdnf
+	return buildKarnaughMap(table, vars, FormatTermsProd(finalFunc, vars))
+}
+
+func getSilentMinimized(terms []models.Term, vars []string, formatTerm func(models.Term, []string) string) []models.Term {goCover_826678015c99__12[0] = 1 ; goCover_826678015c99__12[1] = goCover_826678015c99_P ; goCover_826678015c99__12[2] = 12 ; goCover_826678015c99__12[3] = 1;
+	primes := PerformGluingSteps(nil, terms, vars, formatTerm, "")
+	return RemoveRedundantCalc(nil, primes, terms, vars, formatTerm)
+}
+
+// Изменили сигнатуру функции (удалили isSdnf bool)
+func buildKarnaughMap(table []models.Row, vars []string, finalResult string) string {goCover_826678015c99__13[0] = 11 ; goCover_826678015c99__13[1] = goCover_826678015c99_P ; goCover_826678015c99__13[2] = 13 ; goCover_826678015c99__13[3] = 1;
+	if len(vars) > 4 {goCover_826678015c99__13[7] = 1;
+		return "Отрисовка карты Карно для >4 переменных выходит за рамки текстовой консоли.\n"
+	}
+
+	goCover_826678015c99__13[4] = 1;rowVars, colVars := splitVars(vars)
+	rowCodes := generateGrayCodes(len(rowVars))
+	colCodes := generateGrayCodes(len(colVars))
+
+	var sb strings.Builder
+
+	sb.WriteString(fmt.Sprintf("%s \\ %s\t|", strings.Join(rowVars, ""), strings.Join(colVars, "")))
+	for _, c := range colCodes {goCover_826678015c99__13[8] = 1;
+		sb.WriteString(fmt.Sprintf(" %s |", formatBinary(c, len(colVars))))
+	}
+	goCover_826678015c99__13[5] = 1;sb.WriteString("\n" + strings.Repeat("-", 10+5*len(colCodes)) + "\n")
+
+	for _, r := range rowCodes {goCover_826678015c99__13[9] = 1;
+		sb.WriteString(fmt.Sprintf("  %s\t|", formatBinary(r, len(rowVars))))
+		for _, c := range colCodes {goCover_826678015c99__13[11] = 1;
+			idx := (r << len(colVars)) | c
+			res := getTableResult(table, idx)
+
+			val := "0"
+			if res {goCover_826678015c99__13[13] = 1;
+				val = "1"
+			}
+			goCover_826678015c99__13[12] = 1;sb.WriteString(fmt.Sprintf("  %s |", val))
+		}
+		goCover_826678015c99__13[10] = 1;sb.WriteString("\n")
+	}
+
+	goCover_826678015c99__13[6] = 1;sb.WriteString("\nРезультат минимизации по карте Карно:\n" + finalResult + "\n")
+	return sb.String()
+}
+
+func splitVars(vars []string) ([]string, []string) {goCover_826678015c99__14[0] = 3 ; goCover_826678015c99__14[1] = goCover_826678015c99_P ; goCover_826678015c99__14[2] = 14 ; goCover_826678015c99__14[3] = 1;
+	half := len(vars) / 2
+	if len(vars) == 3 {goCover_826678015c99__14[5] = 1;
+		half = 1
+	}
+	goCover_826678015c99__14[4] = 1;return vars[:half], vars[half:]
+}
+
+func generateGrayCodes(bits int) []int {goCover_826678015c99__15[0] = 3 ; goCover_826678015c99__15[1] = goCover_826678015c99_P ; goCover_826678015c99__15[2] = 15 ; goCover_826678015c99__15[3] = 1;
+	count := 1 << bits
+	codes := make([]int, count)
+	for i := 0; i < count; i++ {goCover_826678015c99__15[5] = 1;
+		codes[i] = i ^ (i >> 1)
+	}
+	goCover_826678015c99__15[4] = 1;return codes
+}
+
+func formatBinary(val, bits int) string {goCover_826678015c99__16[0] = 1 ; goCover_826678015c99__16[1] = goCover_826678015c99_P ; goCover_826678015c99__16[2] = 16 ; goCover_826678015c99__16[3] = 1;
+	format := fmt.Sprintf("%%0%db", bits)
+	return fmt.Sprintf(format, val)
+}
+
+func getTableResult(table []models.Row, index int) bool {goCover_826678015c99__17[0] = 4 ; goCover_826678015c99__17[1] = goCover_826678015c99_P ; goCover_826678015c99__17[2] = 17 ; goCover_826678015c99__17[3] = 1;
+	for _, r := range table {goCover_826678015c99__17[5] = 1;
+		if r.Index == index {goCover_826678015c99__17[6] = 1;
+			return r.Result
+		}
+	}
+	goCover_826678015c99__17[4] = 1;return false
+}

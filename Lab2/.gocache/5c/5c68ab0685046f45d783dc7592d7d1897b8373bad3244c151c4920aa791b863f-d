@@ -1,0 +1,50 @@
+//line D:\AOIS\Lab2\internal\truthtable\truthtable.go:1:1
+package truthtable
+
+import (
+	"logical_calculator/internal/evaluator"
+	"logical_calculator/internal/models"
+	"sort"
+)
+
+// ExtractVariables находит уникальные переменные
+func ExtractVariables(rpn []string) []string {goCover_ad57f4347dbe__0[0] = 6 ; goCover_ad57f4347dbe__0[1] = goCover_ad57f4347dbe_P ; goCover_ad57f4347dbe__0[2] = 0 ; goCover_ad57f4347dbe__0[3] = 1;
+	varSet := make(map[string]bool)
+	for _, token := range rpn {goCover_ad57f4347dbe__0[6] = 1;
+		if token >= "a" && token <= "e" {goCover_ad57f4347dbe__0[7] = 1;
+			varSet[token] = true
+		}
+	}
+	goCover_ad57f4347dbe__0[4] = 1;var vars []string
+	for v := range varSet {goCover_ad57f4347dbe__0[8] = 1;
+		vars = append(vars, v)
+	}
+	goCover_ad57f4347dbe__0[5] = 1;sort.Strings(vars)
+	return vars
+}
+
+// GenerateTable строит таблицу истинности (до 2^5 = 32 строк)
+func GenerateTable(rpn []string, vars []string) []models.Row {goCover_ad57f4347dbe__1[0] = 3 ; goCover_ad57f4347dbe__1[1] = goCover_ad57f4347dbe_P ; goCover_ad57f4347dbe__1[2] = 1 ; goCover_ad57f4347dbe__1[3] = 1;
+	var table []models.Row
+	rowCount := 1 << len(vars)
+
+	for i := 0; i < rowCount; i++ {goCover_ad57f4347dbe__1[5] = 1;
+		values := createRowValues(i, vars)
+		res := evaluator.EvaluateRPN(rpn, values)
+		table = append(table, models.Row{
+			Values: values,
+			Result: res,
+			Index:  i,
+		})
+	}
+	goCover_ad57f4347dbe__1[4] = 1;return table
+}
+
+func createRowValues(index int, vars []string) map[string]bool {goCover_ad57f4347dbe__2[0] = 3 ; goCover_ad57f4347dbe__2[1] = goCover_ad57f4347dbe_P ; goCover_ad57f4347dbe__2[2] = 2 ; goCover_ad57f4347dbe__2[3] = 1;
+	values := make(map[string]bool)
+	for bitIndex, v := range vars {goCover_ad57f4347dbe__2[5] = 1;
+		shift := len(vars) - 1 - bitIndex
+		values[v] = ((index >> shift) & 1) == 1
+	}
+	goCover_ad57f4347dbe__2[4] = 1;return values
+}

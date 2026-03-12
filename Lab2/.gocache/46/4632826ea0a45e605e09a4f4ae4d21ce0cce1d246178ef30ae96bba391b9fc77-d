@@ -1,0 +1,139 @@
+//line D:\AOIS\Lab2\internal\derivatives\derivatives.go:1:1
+package derivatives
+
+import (
+	"fmt"
+	"logical_calculator/internal/minimization"
+	"logical_calculator/internal/models"
+	"strings"
+)
+
+func FindDummyVariables(table []models.Row, vars []string) []string {goCover_cb00173d9ad5__0[0] = 4 ; goCover_cb00173d9ad5__0[1] = goCover_cb00173d9ad5_P ; goCover_cb00173d9ad5__0[2] = 0 ; goCover_cb00173d9ad5__0[3] = 1;
+	var dummies []string
+	for i, v := range vars {goCover_cb00173d9ad5__0[5] = 1;
+		if isDummy(table, len(vars), i) {goCover_cb00173d9ad5__0[6] = 1;
+			dummies = append(dummies, v)
+		}
+	}
+	goCover_cb00173d9ad5__0[4] = 1;return dummies
+}
+
+func isDummy(table []models.Row, varCount, targetVarIndex int) bool {goCover_cb00173d9ad5__1[0] = 5 ; goCover_cb00173d9ad5__1[1] = goCover_cb00173d9ad5_P ; goCover_cb00173d9ad5__1[2] = 1 ; goCover_cb00173d9ad5__1[3] = 1;
+	shift := varCount - 1 - targetVarIndex
+	for i := 0; i < len(table); i++ {goCover_cb00173d9ad5__1[5] = 1;
+		if (i>>shift)&1 == 0 {goCover_cb00173d9ad5__1[6] = 1;
+			flippedIdx := i | (1 << shift)
+			if table[i].Result != table[flippedIdx].Result {goCover_cb00173d9ad5__1[7] = 1;
+				return false
+			}
+		}
+	}
+	goCover_cb00173d9ad5__1[4] = 1;return true
+}
+
+// GenerateAllDerivatives собирает полный отчет по всем производным
+func GenerateAllDerivatives(table []models.Row, vars []string) string {goCover_cb00173d9ad5__2[0] = 6 ; goCover_cb00173d9ad5__2[1] = goCover_cb00173d9ad5_P ; goCover_cb00173d9ad5__2[2] = 2 ; goCover_cb00173d9ad5__2[3] = 1;
+	var sb strings.Builder
+	baseResults := make([]bool, len(table))
+	for i, r := range table {goCover_cb00173d9ad5__2[6] = 1;
+		baseResults[i] = r.Result
+	}
+
+	goCover_cb00173d9ad5__2[4] = 1;for order := 1; order <= len(vars) && order <= 4; order++ {goCover_cb00173d9ad5__2[7] = 1;
+		sb.WriteString(fmt.Sprintf("\n--- Производные %d-го порядка ---\n", order))
+		combinations := getCombinations(vars, order)
+		for _, comb := range combinations {goCover_cb00173d9ad5__2[8] = 1;
+			processDerivativeCombo(&sb, baseResults, vars, comb)
+		}
+	}
+	goCover_cb00173d9ad5__2[5] = 1;return sb.String()
+}
+
+func processDerivativeCombo(sb *strings.Builder, baseResults []bool, vars []string, comb []string) {goCover_cb00173d9ad5__3[0] = 5 ; goCover_cb00173d9ad5__3[1] = goCover_cb00173d9ad5_P ; goCover_cb00173d9ad5__3[2] = 3 ; goCover_cb00173d9ad5__3[3] = 1;
+	currentRes := append([]bool(nil), baseResults...) // Копия базового массива
+	for _, tVar := range comb {goCover_cb00173d9ad5__3[6] = 1;
+		idx := findVarIndex(vars, tVar)
+		currentRes = applyDerivative(currentRes, len(vars), idx)
+	}
+
+	goCover_cb00173d9ad5__3[4] = 1;indicesStr := getIndicesStr(currentRes)
+	minimizedStr := minimizeDerivativeResult(currentRes, vars)
+
+	title := "d"
+	if len(comb) > 1 {goCover_cb00173d9ad5__3[7] = 1;
+		title = fmt.Sprintf("d^%d", len(comb))
+	}
+	goCover_cb00173d9ad5__3[5] = 1;sb.WriteString(fmt.Sprintf("%sF / d%s:\n", title, strings.Join(comb, " d")))
+	sb.WriteString(fmt.Sprintf("  Индексы: %s\n", indicesStr))
+	sb.WriteString(fmt.Sprintf("  Функция: %s\n", minimizedStr))
+}
+
+func applyDerivative(results []bool, varCount, targetIndex int) []bool {goCover_cb00173d9ad5__4[0] = 3 ; goCover_cb00173d9ad5__4[1] = goCover_cb00173d9ad5_P ; goCover_cb00173d9ad5__4[2] = 4 ; goCover_cb00173d9ad5__4[3] = 1;
+	deriv := make([]bool, len(results))
+	shift := varCount - 1 - targetIndex
+	for i := 0; i < len(results); i++ {goCover_cb00173d9ad5__4[5] = 1;
+		flippedIdx := i ^ (1 << shift)
+		deriv[i] = results[i] != results[flippedIdx]
+	}
+	goCover_cb00173d9ad5__4[4] = 1;return deriv
+}
+
+// minimizeDerivativeResult превращает вектор производной в СДНФ и упрощает её
+func minimizeDerivativeResult(results []bool, vars []string) string {goCover_cb00173d9ad5__5[0] = 5 ; goCover_cb00173d9ad5__5[1] = goCover_cb00173d9ad5_P ; goCover_cb00173d9ad5__5[2] = 5 ; goCover_cb00173d9ad5__5[3] = 1;
+	// Создаем фейковую таблицу для минимизатора
+	var fakeTable []models.Row
+	for i, res := range results {goCover_cb00173d9ad5__5[6] = 1;
+		fakeTable = append(fakeTable, models.Row{Index: i, Result: res})
+	}
+
+	goCover_cb00173d9ad5__5[4] = 1;minterms := minimization.BuildMinterms(fakeTable, vars)
+	if len(minterms) == 0 {goCover_cb00173d9ad5__5[7] = 1;
+		return "0"
+	}
+
+	goCover_cb00173d9ad5__5[5] = 1;primes := minimization.PerformGluingSteps(nil, minterms, vars, minimization.FormatTermSDNF, "v")
+	final := minimization.RemoveRedundantCalc(nil, primes, minterms, vars, minimization.FormatTermSDNF)
+
+	return minimization.FormatTermsSum(final, vars)
+}
+
+func findVarIndex(vars []string, target string) int {goCover_cb00173d9ad5__6[0] = 4 ; goCover_cb00173d9ad5__6[1] = goCover_cb00173d9ad5_P ; goCover_cb00173d9ad5__6[2] = 6 ; goCover_cb00173d9ad5__6[3] = 1;
+	for i, v := range vars {goCover_cb00173d9ad5__6[5] = 1;
+		if v == target {goCover_cb00173d9ad5__6[6] = 1;
+			return i
+		}
+	}
+	goCover_cb00173d9ad5__6[4] = 1;return -1
+}
+
+func getIndicesStr(results []bool) string {goCover_cb00173d9ad5__7[0] = 6 ; goCover_cb00173d9ad5__7[1] = goCover_cb00173d9ad5_P ; goCover_cb00173d9ad5__7[2] = 7 ; goCover_cb00173d9ad5__7[3] = 1;
+	var indices []string
+	for i, res := range results {goCover_cb00173d9ad5__7[6] = 1;
+		if res {goCover_cb00173d9ad5__7[7] = 1;
+			indices = append(indices, fmt.Sprint(i))
+		}
+	}
+	goCover_cb00173d9ad5__7[4] = 1;if len(indices) == 0 {goCover_cb00173d9ad5__7[8] = 1;
+		return "Нет наборов (Всегда 0)"
+	}
+	goCover_cb00173d9ad5__7[5] = 1;return "[" + strings.Join(indices, ", ") + "]"
+}
+
+// getCombinations генерирует все уникальные сочетания переменных заданного размера
+func getCombinations(vars []string, r int) [][]string {goCover_cb00173d9ad5__8[0] = 6 ; goCover_cb00173d9ad5__8[1] = goCover_cb00173d9ad5_P ; goCover_cb00173d9ad5__8[2] = 8 ; goCover_cb00173d9ad5__8[3] = 1;
+	var result [][]string
+	var generate func(start int, current []string)
+	generate = func(start int, current []string) {goCover_cb00173d9ad5__8[5] = 1;
+		if len(current) == r {goCover_cb00173d9ad5__8[7] = 1;
+			comb := make([]string, len(current))
+			copy(comb, current)
+			result = append(result, comb)
+			return
+		}
+		goCover_cb00173d9ad5__8[6] = 1;for i := start; i < len(vars); i++ {goCover_cb00173d9ad5__8[8] = 1;
+			generate(i+1, append(current, vars[i]))
+		}
+	}
+	goCover_cb00173d9ad5__8[4] = 1;generate(0, []string{})
+	return result
+}

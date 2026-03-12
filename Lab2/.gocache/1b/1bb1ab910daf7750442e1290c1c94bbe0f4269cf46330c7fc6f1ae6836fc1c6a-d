@@ -1,0 +1,69 @@
+//line D:\AOIS\Lab2\internal\parser\validator.go:1:1
+package parser
+
+import (
+	"errors"
+	"fmt"
+	"logical_calculator/internal/config"
+)
+
+// ValidateExpression проверяет массив токенов на синтаксические ошибки
+func ValidateExpression(tokens []string) error {goCover_ea4d0df28cf4__8[0] = 16 ; goCover_ea4d0df28cf4__8[1] = goCover_ea4d0df28cf4_P ; goCover_ea4d0df28cf4__8[2] = 8 ; goCover_ea4d0df28cf4__8[3] = 1;
+	if len(tokens) == 0 {goCover_ea4d0df28cf4__8[7] = 1;
+		return errors.New("введено пустое выражение")
+	}
+
+	goCover_ea4d0df28cf4__8[4] = 1;balance := 0
+	for i, token := range tokens {goCover_ea4d0df28cf4__8[8] = 1;
+		// 1. Проверка баланса скобок
+		if token == config.OpLPr {goCover_ea4d0df28cf4__8[11] = 1;
+			balance++
+		} else{ goCover_ea4d0df28cf4__8[12] = 1;if token == config.OpRPr {goCover_ea4d0df28cf4__8[13] = 1;
+			balance--
+			if balance < 0 {goCover_ea4d0df28cf4__8[14] = 1;
+				return errors.New("ошибка синтаксиса: лишняя закрывающая скобка ')'")
+			}
+		}}
+
+		// 2. Проверка на неизвестные символы
+		goCover_ea4d0df28cf4__8[9] = 1;if !isValidToken(token) {goCover_ea4d0df28cf4__8[15] = 1;
+			return fmt.Errorf("неизвестный символ: '%s'", token)
+		}
+
+		// 3. Проверка последовательности символов
+		goCover_ea4d0df28cf4__8[10] = 1;if i > 0 {goCover_ea4d0df28cf4__8[16] = 1;
+			if err := checkSequence(tokens[i-1], token); err != nil {goCover_ea4d0df28cf4__8[17] = 1;
+				return err
+			}
+		}
+	}
+
+	goCover_ea4d0df28cf4__8[5] = 1;if balance != 0 {goCover_ea4d0df28cf4__8[18] = 1;
+		return errors.New("ошибка синтаксиса: не хватает закрывающей скобки")
+	}
+
+	goCover_ea4d0df28cf4__8[6] = 1;return nil
+}
+
+func isValidToken(token string) bool {goCover_ea4d0df28cf4__9[0] = 1 ; goCover_ea4d0df28cf4__9[1] = goCover_ea4d0df28cf4_P ; goCover_ea4d0df28cf4__9[2] = 9 ; goCover_ea4d0df28cf4__9[3] = 1;
+	return isVariable(token) || isBinaryOperator(token) ||
+		token == config.OpNot || token == config.OpLPr || token == config.OpRPr
+}
+
+func isBinaryOperator(token string) bool {goCover_ea4d0df28cf4__10[0] = 3 ; goCover_ea4d0df28cf4__10[1] = goCover_ea4d0df28cf4_P ; goCover_ea4d0df28cf4__10[2] = 10 ; goCover_ea4d0df28cf4__10[3] = 1;
+	switch token {
+	case config.OpAnd, config.OpOr, config.OpImp, config.OpEq:goCover_ea4d0df28cf4__10[5] = 1;
+		return true
+	}
+	goCover_ea4d0df28cf4__10[4] = 1;return false
+}
+
+func checkSequence(prev, curr string) error {goCover_ea4d0df28cf4__11[0] = 5 ; goCover_ea4d0df28cf4__11[1] = goCover_ea4d0df28cf4_P ; goCover_ea4d0df28cf4__11[2] = 11 ; goCover_ea4d0df28cf4__11[3] = 1;
+	if (isBinaryOperator(prev) || prev == config.OpLPr) && (isBinaryOperator(curr) || curr == config.OpRPr) {goCover_ea4d0df28cf4__11[6] = 1;
+		return fmt.Errorf("ошибка синтаксиса: неверная последовательность '%s%s'", prev, curr)
+	}
+	goCover_ea4d0df28cf4__11[4] = 1;if (isVariable(prev) || prev == config.OpRPr) && (isVariable(curr) || curr == config.OpLPr || curr == config.OpNot) {goCover_ea4d0df28cf4__11[7] = 1;
+		return fmt.Errorf("ошибка синтаксиса: пропущен оператор между '%s' и '%s'", prev, curr)
+	}
+	goCover_ea4d0df28cf4__11[5] = 1;return nil
+}

@@ -1,0 +1,4 @@
+./calculation.go
+./karnaugh.go
+./tabular_calc.go
+./term.go

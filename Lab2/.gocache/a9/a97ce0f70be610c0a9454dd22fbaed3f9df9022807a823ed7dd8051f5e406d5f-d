@@ -1,0 +1,3 @@
+covervars.go
+evaluator.cover.go
+./evaluator_test.go

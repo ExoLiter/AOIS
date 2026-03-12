@@ -1,0 +1,92 @@
+//line D:\AOIS\Lab2\internal\parser\parser.go:1:1
+package parser
+
+import (
+	"logical_calculator/internal/config"
+	"strings"
+)
+
+// FormatInput очищает ввод от пробелов и нормализует операторы
+func FormatInput(input string) string {goCover_ea4d0df28cf4__0[0] = 1 ; goCover_ea4d0df28cf4__0[1] = goCover_ea4d0df28cf4_P ; goCover_ea4d0df28cf4__0[2] = 0 ; goCover_ea4d0df28cf4__0[3] = 1;
+	input = strings.ReplaceAll(input, " ", "")
+	input = strings.ReplaceAll(input, "v", config.OpOr)
+	input = strings.ReplaceAll(input, "∨", config.OpOr)
+	input = strings.ReplaceAll(input, "->", config.OpImp)
+	input = strings.ReplaceAll(input, "→", config.OpImp)
+	input = strings.ReplaceAll(input, "~", config.OpEq)
+	return input
+}
+
+// Tokenize разбивает выражение на токены
+func Tokenize(input string) []string {goCover_ea4d0df28cf4__1[0] = 3 ; goCover_ea4d0df28cf4__1[1] = goCover_ea4d0df28cf4_P ; goCover_ea4d0df28cf4__1[2] = 1 ; goCover_ea4d0df28cf4__1[3] = 1;
+	var tokens []string
+	for _, char := range input {goCover_ea4d0df28cf4__1[5] = 1;
+		tokens = append(tokens, string(char))
+	}
+	goCover_ea4d0df28cf4__1[4] = 1;return tokens
+}
+
+// InfixToRPN переводит инфиксную запись в обратную польскую нотацию
+func InfixToRPN(tokens []string) []string {goCover_ea4d0df28cf4__2[0] = 5 ; goCover_ea4d0df28cf4__2[1] = goCover_ea4d0df28cf4_P ; goCover_ea4d0df28cf4__2[2] = 2 ; goCover_ea4d0df28cf4__2[3] = 1;
+	var rpn, stack []string
+	for _, token := range tokens {goCover_ea4d0df28cf4__2[6] = 1;
+		rpn, stack = processTokenForRPN(token, rpn, stack)
+	}
+	goCover_ea4d0df28cf4__2[4] = 1;for len(stack) > 0 {goCover_ea4d0df28cf4__2[7] = 1;
+		rpn = append(rpn, stack[len(stack)-1])
+		stack = stack[:len(stack)-1]
+	}
+	goCover_ea4d0df28cf4__2[5] = 1;return rpn
+}
+
+func processTokenForRPN(token string, rpn, stack []string) ([]string, []string) {goCover_ea4d0df28cf4__3[0] = 7 ; goCover_ea4d0df28cf4__3[1] = goCover_ea4d0df28cf4_P ; goCover_ea4d0df28cf4__3[2] = 3 ; goCover_ea4d0df28cf4__3[3] = 1;
+	if isVariable(token) {goCover_ea4d0df28cf4__3[7] = 1;
+		return append(rpn, token), stack
+	}
+	goCover_ea4d0df28cf4__3[4] = 1;if token == config.OpLPr {goCover_ea4d0df28cf4__3[8] = 1;
+		return rpn, append(stack, token)
+	}
+	goCover_ea4d0df28cf4__3[5] = 1;if token == config.OpRPr {goCover_ea4d0df28cf4__3[9] = 1;
+		return flushUntilLeftParen(rpn, stack)
+	}
+	goCover_ea4d0df28cf4__3[6] = 1;return handleOperatorForRPN(token, rpn, stack)
+}
+
+func flushUntilLeftParen(rpn, stack []string) ([]string, []string) {goCover_ea4d0df28cf4__4[0] = 5 ; goCover_ea4d0df28cf4__4[1] = goCover_ea4d0df28cf4_P ; goCover_ea4d0df28cf4__4[2] = 4 ; goCover_ea4d0df28cf4__4[3] = 1;
+	for len(stack) > 0 && stack[len(stack)-1] != config.OpLPr {goCover_ea4d0df28cf4__4[6] = 1;
+		rpn = append(rpn, stack[len(stack)-1])
+		stack = stack[:len(stack)-1]
+	}
+	goCover_ea4d0df28cf4__4[4] = 1;if len(stack) > 0 {goCover_ea4d0df28cf4__4[7] = 1;
+		stack = stack[:len(stack)-1] // Удаляем "("
+	}
+	goCover_ea4d0df28cf4__4[5] = 1;return rpn, stack
+}
+
+func handleOperatorForRPN(op string, rpn, stack []string) ([]string, []string) {goCover_ea4d0df28cf4__5[0] = 3 ; goCover_ea4d0df28cf4__5[1] = goCover_ea4d0df28cf4_P ; goCover_ea4d0df28cf4__5[2] = 5 ; goCover_ea4d0df28cf4__5[3] = 1;
+	for len(stack) > 0 && getPriority(stack[len(stack)-1]) >= getPriority(op) {goCover_ea4d0df28cf4__5[5] = 1;
+		rpn = append(rpn, stack[len(stack)-1])
+		stack = stack[:len(stack)-1]
+	}
+	goCover_ea4d0df28cf4__5[4] = 1;return rpn, append(stack, op)
+}
+
+func getPriority(op string) int {goCover_ea4d0df28cf4__6[0] = 7 ; goCover_ea4d0df28cf4__6[1] = goCover_ea4d0df28cf4_P ; goCover_ea4d0df28cf4__6[2] = 6 ; goCover_ea4d0df28cf4__6[3] = 1;
+	switch op {
+	case config.OpNot:goCover_ea4d0df28cf4__6[5] = 1;
+		return config.PriorityNot
+	case config.OpAnd:goCover_ea4d0df28cf4__6[6] = 1;
+		return config.PriorityAnd
+	case config.OpOr:goCover_ea4d0df28cf4__6[7] = 1;
+		return config.PriorityOr
+	case config.OpImp:goCover_ea4d0df28cf4__6[8] = 1;
+		return config.PriorityImp
+	case config.OpEq:goCover_ea4d0df28cf4__6[9] = 1;
+		return config.PriorityEq
+	}
+	goCover_ea4d0df28cf4__6[4] = 1;return config.PriorityDef
+}
+
+func isVariable(token string) bool {goCover_ea4d0df28cf4__7[0] = 1 ; goCover_ea4d0df28cf4__7[1] = goCover_ea4d0df28cf4_P ; goCover_ea4d0df28cf4__7[2] = 7 ; goCover_ea4d0df28cf4__7[3] = 1;
+	return token >= "a" && token <= "e"
+}

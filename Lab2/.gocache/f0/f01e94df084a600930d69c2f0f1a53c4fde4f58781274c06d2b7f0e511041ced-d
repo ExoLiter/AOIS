@@ -1,0 +1,54 @@
+//line D:\AOIS\Lab2\internal\evaluator\evaluator.go:1:1
+package evaluator
+
+import "logical_calculator/internal/config"
+
+// EvaluateRPN вычисляет значение функции на конкретном наборе
+func EvaluateRPN(rpn []string, values map[string]bool) bool {goCover_4b6033ee5749__0[0] = 5 ; goCover_4b6033ee5749__0[1] = goCover_4b6033ee5749_P ; goCover_4b6033ee5749__0[2] = 0 ; goCover_4b6033ee5749__0[3] = 1;
+	var stack []bool
+	for _, token := range rpn {goCover_4b6033ee5749__0[6] = 1;
+		stack = processRPNToken(token, stack, values)
+	}
+	goCover_4b6033ee5749__0[4] = 1;if len(stack) == 0 {goCover_4b6033ee5749__0[7] = 1;
+		return false
+	}
+	goCover_4b6033ee5749__0[5] = 1;return stack[0]
+}
+
+func processRPNToken(token string, stack []bool, values map[string]bool) []bool {goCover_4b6033ee5749__1[0] = 3 ; goCover_4b6033ee5749__1[1] = goCover_4b6033ee5749_P ; goCover_4b6033ee5749__1[2] = 1 ; goCover_4b6033ee5749__1[3] = 1;
+	if val, isVar := values[token]; isVar {goCover_4b6033ee5749__1[5] = 1;
+		return append(stack, val)
+	}
+	goCover_4b6033ee5749__1[4] = 1;return applyOperator(token, stack)
+}
+
+func applyOperator(op string, stack []bool) []bool {goCover_4b6033ee5749__2[0] = 3 ; goCover_4b6033ee5749__2[1] = goCover_4b6033ee5749_P ; goCover_4b6033ee5749__2[2] = 2 ; goCover_4b6033ee5749__2[3] = 1;
+	if op == config.OpNot {goCover_4b6033ee5749__2[5] = 1;
+		return applyNot(stack)
+	}
+	goCover_4b6033ee5749__2[4] = 1;return applyBinary(op, stack)
+}
+
+func applyNot(stack []bool) []bool {goCover_4b6033ee5749__3[0] = 1 ; goCover_4b6033ee5749__3[1] = goCover_4b6033ee5749_P ; goCover_4b6033ee5749__3[2] = 3 ; goCover_4b6033ee5749__3[3] = 1;
+	val := stack[len(stack)-1]
+	return append(stack[:len(stack)-1], !val)
+}
+
+func applyBinary(op string, stack []bool) []bool {goCover_4b6033ee5749__4[0] = 6 ; goCover_4b6033ee5749__4[1] = goCover_4b6033ee5749_P ; goCover_4b6033ee5749__4[2] = 4 ; goCover_4b6033ee5749__4[3] = 1;
+	b := stack[len(stack)-1]
+	a := stack[len(stack)-2]
+	stack = stack[:len(stack)-2]
+
+	var res bool
+	switch op {
+	case config.OpAnd:goCover_4b6033ee5749__4[5] = 1;
+		res = a && b
+	case config.OpOr:goCover_4b6033ee5749__4[6] = 1;
+		res = a || b
+	case config.OpImp:goCover_4b6033ee5749__4[7] = 1;
+		res = !a || b
+	case config.OpEq:goCover_4b6033ee5749__4[8] = 1;
+		res = a == b
+	}
+	goCover_4b6033ee5749__4[4] = 1;return append(stack, res)
+}

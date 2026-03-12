@@ -1,0 +1,53 @@
+//line D:\AOIS\Lab2\internal\zhegalkin\zhegalkin.go:1:1
+package zhegalkin
+
+import (
+	"logical_calculator/internal/models"
+	"strings"
+)
+
+func BuildPolynomial(table []models.Row, vars []string) string {goCover_e943a01e3411__0[0] = 6 ; goCover_e943a01e3411__0[1] = goCover_e943a01e3411_P ; goCover_e943a01e3411__0[2] = 0 ; goCover_e943a01e3411__0[3] = 1;
+	coeffs := ComputeCoeffs(table)
+	var terms []string
+
+	for i, coeff := range coeffs {goCover_e943a01e3411__0[6] = 1;
+		if coeff {goCover_e943a01e3411__0[7] = 1;
+			terms = append(terms, buildZhegalkinTerm(i, vars))
+		}
+	}
+	goCover_e943a01e3411__0[4] = 1;if len(terms) == 0 {goCover_e943a01e3411__0[8] = 1;
+		return "0"
+	}
+	goCover_e943a01e3411__0[5] = 1;return strings.Join(terms, " + ")
+}
+
+// ComputeCoeffs вычисляет коэффициенты полинома (сделана публичной)
+func ComputeCoeffs(table []models.Row) []bool {goCover_e943a01e3411__1[0] = 7 ; goCover_e943a01e3411__1[1] = goCover_e943a01e3411_P ; goCover_e943a01e3411__1[2] = 1 ; goCover_e943a01e3411__1[3] = 1;
+	n := len(table)
+	coeffs := make([]bool, n)
+	for i, row := range table {goCover_e943a01e3411__1[6] = 1;
+		coeffs[i] = row.Result
+	}
+	goCover_e943a01e3411__1[4] = 1;for i := 1; i < n; i *= 2 {goCover_e943a01e3411__1[7] = 1;
+		for j := 0; j < n; j += 2 * i {goCover_e943a01e3411__1[8] = 1;
+			for k := 0; k < i; k++ {goCover_e943a01e3411__1[9] = 1;
+				coeffs[j+k+i] = coeffs[j+k+i] != coeffs[j+k]
+			}
+		}
+	}
+	goCover_e943a01e3411__1[5] = 1;return coeffs
+}
+
+func buildZhegalkinTerm(index int, vars []string) string {goCover_e943a01e3411__2[0] = 6 ; goCover_e943a01e3411__2[1] = goCover_e943a01e3411_P ; goCover_e943a01e3411__2[2] = 2 ; goCover_e943a01e3411__2[3] = 1;
+	if index == 0 {goCover_e943a01e3411__2[6] = 1;
+		return "1"
+	}
+	goCover_e943a01e3411__2[4] = 1;var parts []string
+	for bitIndex, v := range vars {goCover_e943a01e3411__2[7] = 1;
+		shift := len(vars) - 1 - bitIndex
+		if (index>>shift)&1 == 1 {goCover_e943a01e3411__2[8] = 1;
+			parts = append(parts, v)
+		}
+	}
+	goCover_e943a01e3411__2[5] = 1;return strings.Join(parts, "")
+}

@@ -1,0 +1,83 @@
+//line D:\AOIS\Lab2\internal\minimization\tabular_calc.go:1:1
+package minimization
+
+import (
+	"fmt"
+	"logical_calculator/internal/models"
+	"strings"
+)
+
+func MinimizeTabularCalcSDNF(table []models.Row, vars []string) string {goCover_826678015c99__18[0] = 1 ; goCover_826678015c99__18[1] = goCover_826678015c99_P ; goCover_826678015c99__18[2] = 18 ; goCover_826678015c99__18[3] = 1;
+	minterms := BuildMinterms(table, vars)
+	return runTabularCalcMethod(minterms, vars, FormatTermSDNF, FormatTermsSum, "v")
+}
+
+func MinimizeTabularCalcSKNF(table []models.Row, vars []string) string {goCover_826678015c99__19[0] = 1 ; goCover_826678015c99__19[1] = goCover_826678015c99_P ; goCover_826678015c99__19[2] = 19 ; goCover_826678015c99__19[3] = 1;
+	maxterms := BuildMaxterms(table, vars)
+	return runTabularCalcMethod(maxterms, vars, FormatTermSKNF, FormatTermsProd, "&")
+}
+
+func runTabularCalcMethod(terms []models.Term, vars []string,
+	formatTerm func(models.Term, []string) string,
+	formatFinal func([]models.Term, []string) string, op string) string {goCover_826678015c99__20[0] = 3 ; goCover_826678015c99__20[1] = goCover_826678015c99_P ; goCover_826678015c99__20[2] = 20 ; goCover_826678015c99__20[3] = 1;
+
+	if len(terms) == 0 {goCover_826678015c99__20[5] = 1;
+		return "Нет импликант для таблицы."
+	}
+
+	goCover_826678015c99__20[4] = 1;var sb strings.Builder
+	sb.WriteString("Этап склеивания (аналогично расчетному методу):\n")
+	primes := PerformGluingSteps(&sb, terms, vars, formatTerm, op)
+
+	sb.WriteString("\nПостроение таблицы (Расчетно-табличный):\n")
+	sb.WriteString(buildQuineTable(primes, terms, vars, formatTerm))
+
+	final := RemoveRedundantCalc(nil, primes, terms, vars, formatTerm) // nil чтобы не дублировать лог
+	sb.WriteString("\nУбираем лишние импликанты и получаем:\n")
+	sb.WriteString(formatFinal(final, vars) + "\n")
+
+	return sb.String()
+}
+
+func buildQuineTable(primes, baseTerms []models.Term, vars []string, formatTerm func(models.Term, []string) string) string {goCover_826678015c99__21[0] = 12 ; goCover_826678015c99__21[1] = goCover_826678015c99_P ; goCover_826678015c99__21[2] = 21 ; goCover_826678015c99__21[3] = 1;
+	var sb strings.Builder
+
+	// 1. Динамически вычисляем максимальную ширину для первого столбца
+	maxHeaderLen := len("Импликанты")
+	for _, p := range primes {goCover_826678015c99__21[7] = 1;
+		termStr := formatTerm(p, vars)
+		if len(termStr) > maxHeaderLen {goCover_826678015c99__21[8] = 1;
+			maxHeaderLen = len(termStr)
+		}
+	}
+	goCover_826678015c99__21[4] = 1;maxHeaderLen += 2 // Добавляем отступ для красоты
+
+	// 2. Устанавливаем узкую ширину для столбцов с индексами
+	colWidth := 4
+
+	// 3. Шапка таблицы (выводим ТОЛЬКО индексы минтермов/макстермов)
+	sb.WriteString(fmt.Sprintf("%-*s ", maxHeaderLen, "Импликанты"))
+	for _, m := range baseTerms {goCover_826678015c99__21[9] = 1;
+		sb.WriteString(fmt.Sprintf("| %-*d ", colWidth, m.Value))
+	}
+	goCover_826678015c99__21[5] = 1;sb.WriteString("|\n")
+
+	// 4. Линия-разделитель (считаем точную длину)
+	lineLen := maxHeaderLen + 1 + len(baseTerms)*(colWidth+3)
+	sb.WriteString(strings.Repeat("-", lineLen) + "\n")
+
+	// 5. Тело таблицы
+	for _, p := range primes {goCover_826678015c99__21[10] = 1;
+		sb.WriteString(fmt.Sprintf("%-*s ", maxHeaderLen, formatTerm(p, vars)))
+		for _, m := range baseTerms {goCover_826678015c99__21[12] = 1;
+			if covers(p, m) {goCover_826678015c99__21[13] = 1;
+				sb.WriteString(fmt.Sprintf("| %-*s ", colWidth, " X")) // Ставим крестик
+			} else{ goCover_826678015c99__21[14] = 1;{
+				sb.WriteString(fmt.Sprintf("| %-*s ", colWidth, "")) // Пустота
+			}}
+		}
+		goCover_826678015c99__21[11] = 1;sb.WriteString("|\n")
+	}
+
+	goCover_826678015c99__21[6] = 1;return sb.String()
+}

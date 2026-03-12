@@ -1,0 +1,65 @@
+//line D:\AOIS\Lab2\internal\postclass\postclass.go:1:1
+package postclass
+
+import (
+	"logical_calculator/internal/models"
+	"logical_calculator/internal/zhegalkin"
+)
+
+func IsT0(table []models.Row) bool {goCover_f110d8602972__0[0] = 1 ; goCover_f110d8602972__0[1] = goCover_f110d8602972_P ; goCover_f110d8602972__0[2] = 0 ; goCover_f110d8602972__0[3] = 1;
+	return !table[0].Result
+}
+
+func IsT1(table []models.Row) bool {goCover_f110d8602972__1[0] = 1 ; goCover_f110d8602972__1[1] = goCover_f110d8602972_P ; goCover_f110d8602972__1[2] = 1 ; goCover_f110d8602972__1[3] = 1;
+	return table[len(table)-1].Result
+}
+
+func IsSelfDual(table []models.Row) bool {goCover_f110d8602972__2[0] = 4 ; goCover_f110d8602972__2[1] = goCover_f110d8602972_P ; goCover_f110d8602972__2[2] = 2 ; goCover_f110d8602972__2[3] = 1;
+	n := len(table)
+	for i := 0; i < n/2; i++ {goCover_f110d8602972__2[5] = 1;
+		if table[i].Result == table[n-1-i].Result {goCover_f110d8602972__2[6] = 1;
+			return false
+		}
+	}
+	goCover_f110d8602972__2[4] = 1;return true
+}
+
+func IsMonotonic(table []models.Row) bool {goCover_f110d8602972__3[0] = 5 ; goCover_f110d8602972__3[1] = goCover_f110d8602972_P ; goCover_f110d8602972__3[2] = 3 ; goCover_f110d8602972__3[3] = 1;
+	for i := 0; i < len(table); i++ {goCover_f110d8602972__3[5] = 1;
+		for j := i + 1; j < len(table); j++ {goCover_f110d8602972__3[6] = 1;
+			if isSubset(i, j) && table[i].Result && !table[j].Result {goCover_f110d8602972__3[7] = 1;
+				return false
+			}
+		}
+	}
+	goCover_f110d8602972__3[4] = 1;return true
+}
+
+// IsLinear проверяет класс L. Функция линейна, если в полиноме нет конъюнкций (умножений)
+func IsLinear(table []models.Row) bool {goCover_f110d8602972__4[0] = 4 ; goCover_f110d8602972__4[1] = goCover_f110d8602972_P ; goCover_f110d8602972__4[2] = 4 ; goCover_f110d8602972__4[3] = 1;
+	coeffs := zhegalkin.ComputeCoeffs(table)
+	for i, c := range coeffs {goCover_f110d8602972__4[5] = 1;
+		if c && countBits(i) > 1 {goCover_f110d8602972__4[6] = 1;
+			return false // Нашли коэффициент = 1 для члена с >1 переменными
+		}
+	}
+	goCover_f110d8602972__4[4] = 1;return true
+}
+
+// IsFunctionallyComplete проверяет, является ли функция функционально полной по теореме Поста
+func IsFunctionallyComplete(table []models.Row) bool {goCover_f110d8602972__5[0] = 1 ; goCover_f110d8602972__5[1] = goCover_f110d8602972_P ; goCover_f110d8602972__5[2] = 5 ; goCover_f110d8602972__5[3] = 1;
+	return !IsT0(table) && !IsT1(table) && !IsSelfDual(table) && !IsMonotonic(table) && !IsLinear(table)
+}
+
+func isSubset(a, b int) bool {goCover_f110d8602972__6[0] = 1 ; goCover_f110d8602972__6[1] = goCover_f110d8602972_P ; goCover_f110d8602972__6[2] = 6 ; goCover_f110d8602972__6[3] = 1;
+	return (a & b) == a
+}
+
+func countBits(n int) int {goCover_f110d8602972__7[0] = 3 ; goCover_f110d8602972__7[1] = goCover_f110d8602972_P ; goCover_f110d8602972__7[2] = 7 ; goCover_f110d8602972__7[3] = 1;
+	count := 0
+	for n > 0 {goCover_f110d8602972__7[5] = 1;
+		count += n & 1
+		n >>= 1
+	}
+	goCover_f110d8602972__7[4] = 1;return count
+}
